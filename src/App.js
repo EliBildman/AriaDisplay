@@ -1,5 +1,6 @@
 // import './App.css';
 import GroupDrawer from './GroupDrawer';
+import EventDisplay from './EventsDisplay';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
@@ -16,7 +17,7 @@ function App() {
               <Redirect to='/events' />
             </Route>
             <Route path='/events'>
-              Fuck me
+              <EventDisplay />
             </Route>
             <Route path='/schedule'>
 
