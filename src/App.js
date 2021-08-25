@@ -1,6 +1,7 @@
 // import './App.css';
 import GroupDrawer from './GroupDrawer';
 import EventDisplay from './EventsDisplay';
+import ScheduleDisplay from './ScheduleDisplay';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ function App() {
               <EventDisplay />
             </Route>
             <Route path='/schedule'>
-
+              <ScheduleDisplay />
             </Route>
           </Switch>
         </GroupDrawer>
