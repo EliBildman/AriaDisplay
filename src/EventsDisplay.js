@@ -6,12 +6,13 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import axios from 'axios';
-import { ListItemText, ListItem, ListItemIcon, List, Paper, Box, TextField } from '@material-ui/core';
+import { ListItemText, ListItem, ListItemIcon, List, Paper, Box, TextField, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
 
 const api_url = 'http://localhost:3000'
 
@@ -151,7 +152,7 @@ function AddEventPannel(props) {
 
     const handleAdd = () => {
         
-        if(textValue == '') return;
+        if(textValue === '') return;
 
         const new_event = {
             name: textValue,
@@ -176,6 +177,24 @@ function AddEventPannel(props) {
                 <TextField value={textValue} label='New Event' variant='outlined' onChange={e => setTextValue(e.target.value)} />
             </Paper>
         </Box>
+    )
+
+}
+
+function RunEventButton(props) {
+
+    const handlePlay = (e) => {
+        e.stopPropagation();
+        axios.post(api_url + '/events', {
+            method: 'run',
+            ID: props.event.ID
+        });
+    }
+
+    return (
+        <Button onClick={handlePlay} >
+            <PlayCircleFilledIcon />
+        </Button>
     )
 
 }
@@ -248,6 +267,10 @@ function EventDisplay() {
                 </ListItem >
             )
 
+            attached_routines.push((
+                <Divider />
+            ))
+
             key++;
 
         }
@@ -260,16 +283,17 @@ function EventDisplay() {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
+                        <RunEventButton event={_event} reRenderCallback={getData} />
                         <RemoveEventButton event={_event} reRenderCallback={getData} />
                         <Typography className={classes.heading}>
                             {_event.ID + ': ' + _event.name}
                         </Typography>
                         <Typography className={classes.secondaryHeading}>
-                            {_event.routines.length + ' Attached Routine' + (_event.routines.length !== 1 ? 's' : '')}
+                            {_event.routines.length + ' Routine' + (_event.routines.length !== 1 ? 's' : '')}
                         </Typography>
                     </AccordionSummary>
-                    <AccordionDetails>
-                        <List>
+                    <AccordionDetails >
+                        <List className={classes.full}>
                             {attached_routines}
                             <ListItem key='add new'>
                                 <AddRoutineButton event={_event} routines={routines} reRenderCallback={getData} />
