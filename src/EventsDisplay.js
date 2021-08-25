@@ -6,7 +6,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import axios from 'axios';
-import { ListItemText, ListItem, ListItemIcon, List, Divider, Grid } from '@material-ui/core';
+import { ListItemText, ListItem, ListItemIcon, List, Paper, Box, TextField } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
@@ -35,7 +35,25 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         direction: 'row',
         justifyContent: 'space-between'
+    },
+    vert_center: {
+        // height: '20rem',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+    },
+    no_pad: {
+        padding: 0
+    },
+    add_pannel: {
+        width: '100%',
+        paddingTop: 10,
+    },
+    moved_button: {
+        position: 'relative',
+        top: '10px'
     }
+
 }));
 
 function AddRoutineButton(props) {
@@ -100,26 +118,72 @@ function RemoveRoutineButton(props) {
         }).then(props.reRenderCallback);
     }
 
-    return  (
-        <Button onClick={handleRemove}>
+    return (
+        <Button onClick={handleRemove} >
             <RemoveCircleIcon />
         </Button>
     )
 
 }
 
-function AddEventButton() {
+function RemoveEventButton(props) {
+    const classes = useStyles();
 
+    const handleRemove = () => {
+        axios.post(api_url + '/events', {
+            method: 'delete',
+            ID: props.event.ID
+        }).then(props.reRenderCallback);
+    }
 
+    return (
+        <Button onClick={handleRemove} className={classes.no_pad} >
+            <RemoveCircleIcon />
+        </Button>
+    );
 
+}
+
+function AddEventPannel(props) {
+
+    const classes = useStyles();
+    const [textValue, setTextValue] = useState('');
+
+    const handleAdd = () => {
+        
+        if(textValue == '') return;
+
+        const new_event = {
+            name: textValue,
+            routines: []
+        };
+        
+        setTextValue('');
+        
+        axios.post(api_url + '/events', {
+            method: 'create',
+            event: new_event
+        }).then(props.reRenderCallback);
     
+    }
+
+    return (
+        <Box className={classes.add_pannel}>
+            <Paper>
+                <Button className={classes.moved_button} onClick={handleAdd}>
+                    <AddCircleIcon />
+                </Button>
+                <TextField value={textValue} label='New Event' variant='outlined' onChange={e => setTextValue(e.target.value)} />
+            </Paper>
+        </Box>
+    )
+
 }
 
 function EventDisplay() {
 
     const classes = useStyles();
     useTheme();
-    const ref = React.createRef();
 
     const [events, setEvents] = useState([]);
     const [eventsLoaded, setEventsLoaded] = useState(false);
@@ -177,9 +241,9 @@ function EventDisplay() {
                         <RemoveRoutineButton event={_event} reRenderCallback={getData} />
                     </ListItemIcon>
                     <ListItemText>
-                            <Typography>
-                                {routine.ID}: {routine.name}
-                            </Typography>
+                        <Typography>
+                            {routine.ID}: {routine.name}
+                        </Typography>
                     </ListItemText>
                 </ListItem >
             )
@@ -196,6 +260,7 @@ function EventDisplay() {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
+                        <RemoveEventButton event={_event} reRenderCallback={getData} />
                         <Typography className={classes.heading}>
                             {_event.ID + ': ' + _event.name}
                         </Typography>
@@ -204,7 +269,7 @@ function EventDisplay() {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <List className={classes.full}>
+                        <List>
                             {attached_routines}
                             <ListItem key='add new'>
                                 <AddRoutineButton event={_event} routines={routines} reRenderCallback={getData} />
@@ -219,6 +284,7 @@ function EventDisplay() {
     return (
         <div className={classes.root}>
             {accordians}
+            <AddEventPannel reRenderCallback={getData}/>
         </div>
     );
 
