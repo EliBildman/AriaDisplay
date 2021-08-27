@@ -17,6 +17,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import FlashOnIcon from '@material-ui/icons/FlashOn';
+import PlaylistPlayIcon from '@material-ui/icons/PlaylistPlay';
 import { Link, Switch, Route } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -48,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     drawer: {
         width: drawerWidth,
         flexShrink: 0,
-        
+
     },
     drawerPaper: {
         width: drawerWidth,
@@ -116,6 +117,7 @@ export default function GroupDrawer(props) {
                         <Switch>
                             <Route path="/events">Events</Route>
                             <Route path="/schedule">Schedule</Route>
+                            <Route path="/routines">Routines</Route>
                         </Switch>
                     </Typography>
                 </Toolbar>
@@ -136,6 +138,10 @@ export default function GroupDrawer(props) {
                 </div>
                 <Divider />
                 <List>
+                    <ListItem onClick={handleDrawerClose} button key="Routines" component={Link} to='/routines'>
+                        <ListItemIcon><PlaylistPlayIcon /></ListItemIcon>
+                        <ListItemText primary={'Routines'} />
+                    </ListItem>
                     <ListItem onClick={handleDrawerClose} button key="Events" component={Link} to='/events'>
                         <ListItemIcon><FlashOnIcon /></ListItemIcon>
                         <ListItemText primary={"Events"} />

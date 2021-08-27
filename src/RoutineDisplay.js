@@ -13,6 +13,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
 const api_url = 'http://localhost:3000'
 
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     full: {
         width: '100%'
     },
-    routinelist: {
+    actionlist: {
         width: '100%',
         direction: 'row',
         justifyContent: 'space-between'
@@ -53,39 +54,45 @@ const useStyles = makeStyles((theme) => ({
     moved_button: {
         position: 'relative',
         top: '10px'
+    },
+    half_full: {
+        width: '50%'
     }
 
 }));
 
-function AddRoutineButton(props) {
+function AddActionButton(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
 
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = (routine) => {
+        setAnchorEl(routine.currentTarget);
     };
 
     const handleClose = () => {
         setAnchorEl(null);
     };
 
-    const handleRoutineUpdate = (added_routine_id) => {
-        let new_event = props.event;
-        new_event.routines.push({ 'ID': added_routine_id });
-        axios.post(api_url + '/events', {
+    const handleActionUpdate = (added_action) => {
+        let new_routine = props.routine;
+        new_routine.sequence.push({
+            'name': added_action,
+            'param': {}
+        });
+        axios.post(api_url + '/routines', {
             method: 'update',
-            ID: new_event.ID,
-            event: new_event
+            ID: new_routine.ID,
+            routine: new_routine
         }).then(props.reRenderCallback);
     }
 
     const items = [];
 
-    for (let routine of props.routines) {
+    for (let action of props.actions) {
         items.push((
-            <MenuItem key={routine.ID} onClick={() => {
-                handleRoutineUpdate(routine.ID);
+            <MenuItem key={action} onClick={() => {
+                handleActionUpdate(action);
                 handleClose();
-            }}>{routine.ID}: {routine.name}</MenuItem>
+            }}>{action}</MenuItem>
         ))
     }
 
@@ -107,15 +114,15 @@ function AddRoutineButton(props) {
     );
 }
 
-function RemoveRoutineButton(props) {
+function RemoveActionButton(props) {
 
     const handleRemove = () => {
-        let new_event = props.event;
-        new_event.routines.splice(props.ind, 1);
-        axios.post(api_url + '/events', {
+        let new_routine = props.routine;
+        new_routine.sequence.splice(props.ind, 1);
+        axios.post(api_url + '/routines', {
             method: 'update',
-            ID: new_event.ID,
-            event: new_event
+            ID: new_routine.ID,
+            routine: new_routine
         }).then(props.reRenderCallback);
     }
 
@@ -127,13 +134,13 @@ function RemoveRoutineButton(props) {
 
 }
 
-function RemoveEventButton(props) {
+function RemoveRoutineButton(props) {
     const classes = useStyles();
 
     const handleRemove = () => {
-        axios.post(api_url + '/events', {
+        axios.post(api_url + '/routines', {
             method: 'delete',
-            ID: props.event.ID
+            ID: props.routine.ID
         }).then(props.reRenderCallback);
     }
 
@@ -145,7 +152,7 @@ function RemoveEventButton(props) {
 
 }
 
-function AddEventPannel(props) {
+function AddRoutinePannel(props) {
 
     const classes = useStyles();
     const [textValue, setTextValue] = useState('');
@@ -154,16 +161,16 @@ function AddEventPannel(props) {
         
         if(textValue === '') return;
 
-        const new_event = {
+        const new_routine = {
             name: textValue,
-            routines: []
+            sequence: []
         };
         
         setTextValue('');
         
-        axios.post(api_url + '/events', {
+        axios.post(api_url + '/routines', {
             method: 'create',
-            event: new_event
+            routine: new_routine
         }).then(props.reRenderCallback);
     
     }
@@ -174,20 +181,20 @@ function AddEventPannel(props) {
                 <Button className={classes.moved_button} onClick={handleAdd}>
                     <AddCircleIcon />
                 </Button>
-                <TextField value={textValue} label='New Event' variant='outlined' onChange={e => setTextValue(e.target.value)} />
+                <TextField value={textValue} label='New Routine' variant='outlined' onChange={e => setTextValue(e.target.value)} />
             </Paper>
         </Box>
     )
 
 }
 
-function RunEventButton(props) {
+function RunRoutineButton(props) {
 
     const handlePlay = (e) => {
         e.stopPropagation();
-        axios.post(api_url + '/events', {
+        axios.post(api_url + '/routines', {
             method: 'run',
-            ID: props.event.ID
+            ID: props.routine.ID
         });
     }
 
@@ -199,28 +206,64 @@ function RunEventButton(props) {
 
 }
 
-function EventDisplay() {
+function ParamDisplay(props) {
+
+    const classes = useStyles();
+
+    const is_valid_json = (str) => {
+        try {
+            JSON.parse(str);
+        } catch(e) {
+            return false;
+        }
+        return true;
+    }
+
+    const [param, setParam] = useState(JSON.stringify(props.routine.sequence[props.ind].param));
+
+    const handleChange = (e) => {
+        setParam(e.target.value);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.keyCode === 13) { //is enter
+            e.preventDefault();
+
+            if(!is_valid_json(param)) {
+                return;
+            }
+
+            const new_routine = props.routine;
+            new_routine.sequence[props.ind].param = JSON.parse(param);
+
+            axios.post(api_url + '/routines', {
+                method: 'update',
+                ID: new_routine.ID,
+                routine: new_routine 
+            })
+            .then(() => document.activeElement.blur())
+            .then(props.reRenderCallback);
+
+        }
+    };
+
+    return (
+        <TextareaAutosize value={param} placeholder="Param" className={classes.half_full} onChange={handleChange} onKeyDown = {handleKeyDown}/>
+    )
+
+}
+
+function RoutineDisplay() {
 
     const classes = useStyles();
     useTheme();
 
-    const [events, setEvents] = useState([]);
-    const [eventsLoaded, setEventsLoaded] = useState(false);
     const [routines, setRoutines] = useState([]);
     const [routinesLoaded, setRoutinesLoaded] = useState(false);
+    const [actions, setActions] = useState([]);
+    const [actionsLoaded, setActionsLoaded] = useState(false);
 
     const getData = () => {
-
-        axios.get(api_url + '/events')
-            .then(
-                (result) => {
-                    setEvents(result.data);
-                    setEventsLoaded(true);
-                },
-                (error) => {
-                    console.log(error);
-                }
-            );
 
         axios.get(api_url + '/routines')
             .then(
@@ -233,11 +276,22 @@ function EventDisplay() {
                 }
             );
 
+        axios.get(api_url + '/actions')
+            .then(
+                (result) => {
+                    setActions(result.data);
+                    setActionsLoaded(true);
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
+
     }
 
     useEffect(getData, []);
 
-    if (!eventsLoaded || !routinesLoaded) {
+    if (!routinesLoaded || !actionsLoaded) {
         return (
             <div>Loading...</div>
         );
@@ -245,29 +299,28 @@ function EventDisplay() {
 
     const accordians = [];
 
-    for (let _event of events) {
+    for (let routine of routines) {
 
-        const attached_routines = [];
+        const attached_actions = [];
 
         let ind = 0;
-        for (let routine_id of _event.routines) {
+        for (let action of routine.sequence) {
 
-            let routine = routines.find(r => r.ID === routine_id.ID); //find routine from ID
-
-            attached_routines.push(
+            attached_actions.push(
                 <ListItem key={ind} >
                     <ListItemIcon>
-                        <RemoveRoutineButton event={_event} reRenderCallback={getData} />
+                        <RemoveActionButton routine={routine} reRenderCallback={getData} />
                     </ListItemIcon>
                     <ListItemText>
                         <Typography>
-                            {routine.ID}: {routine.name}
+                            {action.name}
                         </Typography>
                     </ListItemText>
+                    <ParamDisplay routine={routine} ind={ind} reRenderCallback={getData} />
                 </ListItem >
             )
 
-            attached_routines.push((
+            attached_actions.push((
                 <Divider key={ind + 0.5}/>
             ))
 
@@ -277,26 +330,26 @@ function EventDisplay() {
 
         accordians.push(
             (
-                <Accordion key={_event.ID}>
+                <Accordion key={routine.ID}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
-                        <RunEventButton event={_event} reRenderCallback={getData} />
-                        <RemoveEventButton event={_event} reRenderCallback={getData} />
+                        <RunRoutineButton routine={routine} reRenderCallback={getData} />
+                        <RemoveRoutineButton routine={routine} reRenderCallback={getData} />
                         <Typography className={classes.heading}>
-                            {_event.ID + ': ' + _event.name}
+                            {routine.ID + ': ' + routine.name}
                         </Typography>
                         <Typography className={classes.secondaryHeading}>
-                            {_event.routines.length + ' Routine' + (_event.routines.length !== 1 ? 's' : '')}
+                            {routine.sequence.length + ' Action' + (routine.sequence.length !== 1 ? 's' : '')}
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails >
                         <List className={classes.full}>
-                            {attached_routines}
+                            {attached_actions}
                             <ListItem key='add new'>
-                                <AddRoutineButton event={_event} routines={routines} reRenderCallback={getData} />
+                                <AddActionButton routine={routine} actions={actions} reRenderCallback={getData} />
                             </ListItem>
                         </List>
                     </AccordionDetails>
@@ -308,7 +361,7 @@ function EventDisplay() {
     return (
         <div className={classes.root}>
             {accordians}
-            <AddEventPannel reRenderCallback={getData}/>
+            <AddRoutinePannel reRenderCallback={getData}/>
         </div>
     );
 
@@ -316,4 +369,4 @@ function EventDisplay() {
 }
 
 
-export default EventDisplay;
+export default RoutineDisplay;
