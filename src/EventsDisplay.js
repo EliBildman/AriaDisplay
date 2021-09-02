@@ -111,6 +111,7 @@ function RemoveRoutineButton(props) {
 
     const handleRemove = () => {
         let new_event = props.event;
+        console.log(props.ind);
         new_event.routines.splice(props.ind, 1);
         axios.post(api_url + '/events', {
             method: 'update',
@@ -257,7 +258,7 @@ function EventDisplay() {
             attached_routines.push(
                 <ListItem key={ind} >
                     <ListItemIcon>
-                        <RemoveRoutineButton event={_event} reRenderCallback={getData} />
+                        <RemoveRoutineButton event={_event} ind={ind} reRenderCallback={getData} />
                     </ListItemIcon>
                     <ListItemText>
                         <Typography>

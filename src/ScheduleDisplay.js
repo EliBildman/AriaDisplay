@@ -265,17 +265,16 @@ function ScheduleDisplay() {
 
         const attached_routines = [];
 
-        let key = 0;
-
+        let ind = 0;
 
         for (let routine_id of schedule.routines) {
 
             let routine = routines.find(r => r.ID === routine_id.ID); //find routine from ID
 
             attached_routines.push(
-                <ListItem key={key} >
+                <ListItem key={ind} >
                     <ListItemIcon>
-                        <RemoveRoutineButton schedule={schedule} reRenderCallback={getData} />
+                        <RemoveRoutineButton schedule={schedule} ind={ind} reRenderCallback={getData} />
                     </ListItemIcon>
                     <ListItemText>
                         <Typography>
@@ -286,10 +285,10 @@ function ScheduleDisplay() {
             )
 
             attached_routines.push((
-                <Divider key={key + 1}/>
+                <Divider key={ind + 0.5}/>
             ))
 
-            key += 2;
+            ind += 1;
 
         }
 

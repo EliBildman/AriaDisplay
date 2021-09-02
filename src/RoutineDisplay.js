@@ -309,7 +309,7 @@ function RoutineDisplay() {
             attached_actions.push(
                 <ListItem key={ind} >
                     <ListItemIcon>
-                        <RemoveActionButton routine={routine} reRenderCallback={getData} />
+                        <RemoveActionButton routine={routine} ind={ind} reRenderCallback={getData} />
                     </ListItemIcon>
                     <ListItemText>
                         <Typography>
