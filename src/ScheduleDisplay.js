@@ -197,6 +197,7 @@ function CronStringDisplay(props) {
         if (e.keyCode === 13) { //is enter
             axios.post(api_url + '/schedules', {
                 method: 'update',
+                ID: props.schedule.ID,
                 schedule: {
                     ID: props.schedule.ID,
                     name: props.schedule.name,
