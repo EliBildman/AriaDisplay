@@ -159,7 +159,12 @@ export default function GroupDrawer(props) {
                 })}
             >
                 <div className={classes.drawerHeader} />
-                {props.children}
+                <div style={{
+                    paddingRight: '10%',
+                    paddingLeft: '10%',
+                }}>
+                    {props.children}
+                </div>
             </main>
         </div>
     );
