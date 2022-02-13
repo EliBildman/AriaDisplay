@@ -365,8 +365,6 @@ function RoutineDisplay() {
         </div>
     );
 
-
 }
-
 
 export default RoutineDisplay;

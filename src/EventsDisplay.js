@@ -111,7 +111,6 @@ function RemoveRoutineButton(props) {
 
     const handleRemove = () => {
         let new_event = props.event;
-        console.log(props.ind);
         new_event.routines.splice(props.ind, 1);
         axios.post(api_url + '/events', {
             method: 'update',

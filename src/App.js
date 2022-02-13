@@ -3,6 +3,8 @@ import GroupDrawer from './GroupDrawer';
 import EventDisplay from './EventsDisplay';
 import ScheduleDisplay from './ScheduleDisplay';
 import RoutineDisplay from './RoutineDisplay';
+import ScriptDisplay from './ScriptsDisplay';
+
 import { ThemeProvider } from '@material-ui/core/styles';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
@@ -26,6 +28,9 @@ function App() {
             </Route>
             <Route path='/routines'>
               <RoutineDisplay />
+            </Route>
+            <Route path='/scripts'>
+              <ScriptDisplay />
             </Route>
           </Switch>
         </GroupDrawer>
