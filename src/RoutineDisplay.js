@@ -279,7 +279,7 @@ function RoutineDisplay() {
         axios.get(api_url + '/actions')
             .then(
                 (result) => {
-                    setActions(result.data);
+                    setActions(result.data.map(act => act.name));
                     setActionsLoaded(true);
                 },
                 (error) => {
